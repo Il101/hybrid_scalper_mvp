@@ -66,6 +66,17 @@ ta_indicators:
   momentum_poor_score: 40
   vol_good_score: 60
   vol_poor_score: 40
+
+scanner:
+  watchlist_top_n: 20
+  refresh_sec: 30
+  min_atr_pct_1m: 0.001
+  max_spread_bps: 25           # Увеличили для демо с 12 до 25
+  min_depth_usd_top10: 25000   # Уменьшили с 100k до 25k для демо
+  lead_margin: 0.15
+  lock_min_sec: 120
+  cooldown_after_close_sec: 60
+  trade_one_at_a_time: true
   price_impact_size_usd: 1000.0
 market_conditions:
   active_hours_utc:
