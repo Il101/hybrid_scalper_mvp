@@ -1,0 +1,109 @@
+weights:
+  news: 0.3
+  smart_money: 0.35
+  ta: 0.2
+  microstructure: 0.15
+thresholds:
+  long: 65   # Снизили с 70 до 65
+  short: 35  # Подняли с 30 до 35
+gates:
+  min_liquidity_usd: 500000
+  max_spread_bps: 15  # Увеличили с 6 до 15 для SOLUSDT
+  news_blackout: false
+  microstructure_min_score: 60
+  volatility_min_pct: 0.08
+  volatility_max_pct: 3.0
+risk:
+  base_risk_pct: 0.8
+  kelly_cap: 0.25
+  max_position_frac: 0.3
+  max_portfolio_heat: 0.15
+  max_correlated_exposure: 0.25
+  max_dd_pct: 0.08
+  dd_size_reduction: 0.5
+  max_daily_trades: 20
+  max_consecutive_losses: 5
+execution:
+  spread_cap_bps: 10
+  default_order_type: LIMIT
+  market_urgency_threshold: 80
+  spread_patience_factor: 1.5
+  base_slippage_bps: 2.0
+  fee_bps_per_side: 3.0
+  max_impact_bps: 15.0
+  k_stop_atr: 1.5
+  atr_stop_multiplier: 1.5
+  min_stop_bps: 8
+  max_stop_bps: 25
+  trailing_atr_multiplier: 1.0
+  tp1_frac: 0.4
+  tp1_rr: 1.2
+  tp2_rr: 2.0
+  max_hold_minutes: 15
+  stale_signal_minutes: 2
+performance:
+  ohlcv_cache_seconds: 15
+  feature_cache_seconds: 30
+  max_concurrent_analysis: 5
+orderflow:
+  obi_depth_levels: 5
+  default_spread_bps: 10.0
+
+ta_indicators:
+  ema_short_period: 50
+  ema_long_period: 200
+  rsi_period: 14
+  atr_period: 14
+  vwap_window: 20
+  momentum_window: 10
+  vol_surge_window: 20
+  trend_bullish_score: 70
+  trend_bearish_score: 30
+  momentum_neutral_range: [45, 65]
+  momentum_extended_range: [35, 75]
+  momentum_good_score: 70
+  momentum_neutral_score: 55
+  momentum_poor_score: 40
+  vol_good_score: 60
+  vol_poor_score: 40
+  price_impact_size_usd: 1000.0
+market_conditions:
+  active_hours_utc:
+  - 8
+  - 9
+  - 10
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  reduced_size_factor: 0.7
+  weekend_trading: false
+  low_vol_threshold: 0.005
+  high_vol_threshold: 0.025
+  low_vol_size_multiplier: 1.3
+  high_vol_size_multiplier: 0.6
+ml_features:
+  lookback_short: 20
+  lookback_long: 100
+  pattern_window: 15
+  volume_window: 25
+  microstructure_weight: 0.3
+runtime:
+  default_timeframe: 1m
+  symbols:
+  - BTCUSDT
+  - ETHUSDT
+  - SOLUSDT
+  - ADAUSDT
+  max_symbols_concurrent: 3
+meta_model:
+  enabled: true
+  path: model/artifacts/meta_model.pkl
+  calibrator_path: model/artifacts/calibrator.pkl
+  thresholds:
+    default:
+      p_win: 0.58
+      ev_min_pct: 0.08
+  avg_win_pct: 0.22
+  avg_loss_pct: 0.15
