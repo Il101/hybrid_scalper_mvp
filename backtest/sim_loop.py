@@ -5,6 +5,7 @@ import yaml
 import signal
 import sys
 import time
+import csv
 from features.ta_indicators import ta_score, atr_pct
 from features.news_metrics import news_score
 from features.sm_metrics import sm_score
@@ -26,6 +27,33 @@ def signal_handler(signum, frame):
 
 # Cache last non-empty orderbook to avoid blocking waits and allow brief gaps in WS stream
 _last_orderbook_cache: dict[str, dict] = {}
+
+def log_scanner_data(symbol: str, priority: float, vol_score: float, flow_score: float, 
+                    info_score: float, cost_score: float, selected: bool, reason: str = ""):
+    """Log scanner data to logs/scanner.csv"""
+    scanner_log_path = "logs/scanner.csv"
+    
+    # Create header if file doesn't exist
+    if not os.path.exists(scanner_log_path):
+        with open(scanner_log_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['timestamp', 'symbol', 'priority', 'vol_score', 'flow_score', 
+                           'info_score', 'cost_score', 'selected', 'reason'])
+    
+    # Append data
+    with open(scanner_log_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            int(time.time() * 1000),
+            symbol,
+            round(priority, 4),
+            round(vol_score, 4),
+            round(flow_score, 4), 
+            round(info_score, 4),
+            round(cost_score, 4),
+            selected,
+            reason
+        ])
 
 def _get_ws_orderbook_fresh(symbol: str, max_age_ms: int = 2000) -> dict | None:
     """Return a fresh WS orderbook snapshot if available, else last non-empty cached one.
@@ -52,6 +80,27 @@ def _get_ws_orderbook_fresh(symbol: str, max_age_ms: int = 2000) -> dict | None:
         if cached:
             cached['_source'] = 'cached_ws'
         return cached
+
+def on_symbol_switch(old_symbol: str, new_symbol: str, broker: 'PaperBroker') -> None:
+    """
+    Handle symbol switching: close positions, reset state/buffers.
+    Called when multi-symbol runner switches active symbol.
+    """
+    if old_symbol and old_symbol != new_symbol:
+        print(f"🔄 Symbol switch: {old_symbol} -> {new_symbol}")
+        
+        # Close any open positions
+        if not broker.flat():
+            import time
+            ts = str(int(time.time() * 1000))
+            current_price = 0.0  # Would need to fetch current price
+            broker.close(ts, old_symbol, current_price, reason="SYMBOL_SWITCH")
+            print(f"📕 Closed position in {old_symbol} due to symbol switch")
+        
+        # Clear symbol-specific caches
+        _last_orderbook_cache.pop(old_symbol, None)
+        
+        print(f"✅ Symbol switch complete: now trading {new_symbol}")
 
 def run_simulation(symbol="BTCUSDT", timeframe="5m", steps=0, use_ws=False, use_ws_prices=False, fast_mode=True):
     # Setup signal handlers for graceful shutdown

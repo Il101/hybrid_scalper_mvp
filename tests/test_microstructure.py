@@ -290,14 +290,12 @@ class TestIntegrationWithTradingLogic:
     def test_market_impact_limits(self, test_orderbook_data):
         """Тест ограничений по маркет импакту"""
         try:
-            from features.orderflow import estimate_price_impact
-            
             # Тестируем разные размеры ордеров
             order_sizes = [100, 500, 1000, 5000, 10000]  # USD
             impacts = []
             
             for size in order_sizes:
-                impact = estimate_price_impact(test_orderbook_data, 'buy', size)
+                impact = estimate_price_impact(test_orderbook_data, size, 'buy')
                 impacts.append(abs(impact))
             
             # Impact должен расти с размером ордера
